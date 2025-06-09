@@ -1,272 +1,254 @@
-// Painel estilo dashboard completo conforme imagem de referência e requisitos adicionais
 
-import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  Brush,
-} from "recharts";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>ENGAJAR A CITY</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0f0f0f;
+      color: #f1f1f1;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #00ffff;
+      margin-bottom: 40px;
+    }
+    .quadro {
+      margin-bottom: 60px;
+    }
+    .quadro h2 {
+      color: #00ffff;
+      margin-bottom: 20px;
+    }
+    .mensagem {
+      margin-bottom: 20px;
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,255,255,0.2);
+    }
+    textarea {
+      width: 100%;
+      height: 180px;
+      padding: 15px;
+      background: #2b2b2b;
+      border: none;
+      color: #f1f1f1;
+      border-radius: 8px;
+      resize: none;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 10px;
+      background: #00ffff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #000;
+    }
+    button:hover {
+      background: #00cccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>ENGAJAR A CITY</h1>
 
-const PASTAS = ["Retenção", "Conexão", "Introdução", "Evolução", "Interação", "Expansão"];
-const PREMIOS = ["VIP OURO", "VIP PRATA", "VIP PLATINA", "VIP LANÇAMENTO", "BATTLEPASS"];
-const CORES = ["#9333ea", "#7f1d1d", "#1e40af", "#047857", "#78350f", "#2563eb"];
-const STATUS_CORES = {
-  "Horrível": "#dc2626",
-  "Ruim": "#f97316",
-  "Médio": "#eab308",
-  "Bom": "#10b981",
-  "Ótimo": "#3b82f6",
-  "Excelente": "#8b5cf6"
-};
+  <div class="quadro" id="manha">
+    <h2>☀️ VERSÕES DE MANHÃ</h2>
+    <div class="mensagem">
+      <textarea readonly id="manha1">**# 🌞 Bom dia, Maresia City!**
+> O sol brilhou, o jogo virou. Vai ficar off ou vai ser show?
 
-const getHoje = () => new Date().toISOString().split("T")[0];
-const formatarData = (str) => {
-  const [y, m, d] = str.split("-");
-  return `${d}/${m}/${y}`;
-};
-const loadData = () => JSON.parse(localStorage.getItem("painel-pastas") || "{}");
-const saveData = (data) => localStorage.setItem("painel-pastas", JSON.stringify(data));
-
-export default function Dashboard() {
-  const [data, setData] = useState({});
-  const [dataHoje, setDataHoje] = useState(getHoje());
-  const [inputs, setInputs] = useState({});
-  const [premioInput, setPremioInput] = useState({ nome: '', pasta: '', tipo: '' });
-  const [premiacoes, setPremiacoes] = useState([]);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [mostrarConsulta, setMostrarConsulta] = useState(false);
-  const [dataConsulta, setDataConsulta] = useState(getHoje());
-
-  useEffect(() => {
-    const d = loadData();
-    setData(d);
-    setInputs(d[dataHoje]?.pastas || {});
-    setPremiacoes(d[dataHoje]?.premiacoes || []);
-  }, [dataHoje]);
-
-  const salvar = () => {
-    const novo = {
-      ...data,
-      [dataHoje]: {
-        pastas: inputs,
-        premiacoes,
-      },
-    };
-    setData(novo);
-    saveData(novo);
-    setMostrarFormulario(false);
-  };
-
-  const dias = Object.keys(data).sort();
-  const dadosContratacao = dias.map((dia) => {
-    const d = data[dia]?.pastas || {};
-    const obj = { data: formatarData(dia) };
-    PASTAS.forEach((p) => {
-      obj[p] = Number(d[`${p}-C`] || 0);
-    });
-    return obj;
-  });
-  const dadosRetencao = dias.map((dia) => {
-    const d = data[dia]?.pastas || {};
-    const obj = { data: formatarData(dia) };
-    PASTAS.forEach((p) => {
-      obj[p] = Number(d[`${p}-R`] || 0);
-    });
-    return obj;
-  });
-
-  const statusNivel = (n) => {
-    if (n >= 90) return "Excelente";
-    if (n >= 70) return "Ótimo";
-    if (n >= 50) return "Bom";
-    if (n >= 30) return "Médio";
-    if (n >= 10) return "Ruim";
-    return "Horrível";
-  };
-
-  const premiacoesConsulta = Object.values(data).flatMap((d) => d.premiacoes || []);
-  const dadosHoje = data[dataHoje]?.pastas || {};
-
-  return (
-    <div className="bg-black text-white min-h-screen p-4 max-w-[75%] mx-auto font-sans text-sm">
-      <h1 className="text-center text-2xl font-bold mb-6">CONTROLE WALLSTREET</h1>
-
-      <div className="flex items-center gap-2 mb-4">
-        <Button onClick={() => setMostrarFormulario(!mostrarFormulario)} className="bg-purple-600 px-4 py-1 rounded-xl text-sm">Preencher Dados</Button>
-        <Input type="date" value={dataHoje} onChange={(e) => setDataHoje(e.target.value)} className="bg-zinc-900 text-white rounded-xl text-sm px-2 py-1 w-40" />
-      </div>
-
-      {mostrarFormulario && (
-        <Card className="bg-zinc-900 mb-6">
-          <CardContent className="p-4 space-y-3">
-            {PASTAS.map((pasta) => (
-              <div key={pasta} className="grid grid-cols-3 gap-2 items-center">
-                <span className="text-white text-sm font-medium col-span-1">{pasta}</span>
-                <Input type="number" placeholder="Contratados" value={inputs[`${pasta}-C`] || ''} onChange={(e) => setInputs({ ...inputs, [`${pasta}-C`]: e.target.value })} className="bg-zinc-800 text-sm px-2 py-1 rounded-md" />
-                <Input type="number" placeholder="Retenção" value={inputs[`${pasta}-R`] || ''} onChange={(e) => setInputs({ ...inputs, [`${pasta}-R`]: e.target.value })} className="bg-zinc-800 text-sm px-2 py-1 rounded-md" />
-              </div>
-            ))}
-            {[0, 1, 2].map((_, i) => (
-              <div key={i} className="grid grid-cols-4 gap-2">
-                <Input placeholder="Nome" value={premiacoes[i]?.nome || ''} onChange={(e) => {
-                  const novos = [...premiacoes];
-                  novos[i] = { ...novos[i], nome: e.target.value };
-                  setPremiacoes(novos);
-                }} className="bg-zinc-800 text-sm px-2 py-1 rounded-md" />
-                <select className="bg-zinc-800 text-white text-sm rounded-md" value={premiacoes[i]?.pasta || ''} onChange={(e) => {
-                  const novos = [...premiacoes];
-                  novos[i] = { ...novos[i], pasta: e.target.value };
-                  setPremiacoes(novos);
-                }}>
-                  <option value="">Pasta</option>
-                  {PASTAS.map(p => <option key={p}>{p}</option>)}
-                </select>
-                <select className="bg-zinc-800 text-white text-sm rounded-md" value={premiacoes[i]?.tipo || ''} onChange={(e) => {
-                  const novos = [...premiacoes];
-                  novos[i] = { ...novos[i], tipo: e.target.value };
-                  setPremiacoes(novos);
-                }}>
-                  <option value="">Prêmio</option>
-                  {PREMIOS.map(p => <option key={p}>{p}</option>)}
-                </select>
-                <div></div>
-              </div>
-            ))}
-            <Button onClick={salvar} className="bg-green-600 mt-2 px-4 py-1 text-sm">Salvar</Button>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card className="bg-zinc-900 mb-4">
-        <CardContent className="p-4">
-          <h2 className="text-purple-400 text-sm font-semibold mb-2">Linha do tempo de Contratações</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={dadosContratacao}>
-              <CartesianGrid stroke="#444" strokeWidth={1} />
-              <XAxis dataKey="data" stroke="#ddd" />
-              <YAxis stroke="#ddd" />
-              <Tooltip />
-              <Legend />
-              <Brush dataKey="data" height={20} stroke="#9333ea" />
-              {PASTAS.map((p, i) => <Line key={p} type="monotone" dataKey={p} stroke={CORES[i]} strokeWidth={2.5} dot={{ r: 3 }} />)}
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-zinc-900 mb-4">
-        <CardContent className="p-4">
-          <h2 className="text-purple-400 text-sm font-semibold mb-2">Linha do tempo de Retenção</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={dadosRetencao}>
-              <CartesianGrid stroke="#444" strokeWidth={1} />
-              <XAxis dataKey="data" stroke="#ddd" />
-              <YAxis stroke="#ddd" />
-              <Tooltip />
-              <Legend />
-              <Brush dataKey="data" height={20} stroke="#9333ea" />
-              {PASTAS.map((p, i) => <Line key={p} type="monotone" dataKey={p} stroke={CORES[i]} strokeWidth={2.5} dot={{ r: 3 }} />)}
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <Card className="bg-zinc-900">
-          <CardContent className="p-4">
-            <h2 className="text-white text-sm mb-1">Gráfico Contratações ({formatarData(dataHoje)})</h2>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={PASTAS.map((p) => ({ pasta: p, valor: Number(dadosHoje[`${p}-C`] || 0) }))}>
-                <XAxis dataKey="pasta" stroke="#aaa" />
-                <YAxis stroke="#aaa" />
-                <Tooltip />
-                <Bar dataKey="valor" fill="#10b981" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900">
-          <CardContent className="p-4">
-            <h2 className="text-white text-sm mb-1">Gráfico de Retenção ({formatarData(dataHoje)})</h2>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={PASTAS.map((p) => ({ pasta: p, valor: Number(dadosHoje[`${p}-R`] || 0) }))}>
-                <XAxis dataKey="pasta" stroke="#aaa" />
-                <YAxis stroke="#aaa" />
-                <Tooltip />
-                <Bar dataKey="valor" fill="#f97316" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="bg-zinc-900 mb-4">
-        <CardContent className="p-4">
-          <h2 className="text-green-400 text-sm font-semibold mb-2">Status das pasta - Semanal</h2>
-          {PASTAS.map((p, i) => {
-            const valor = Number(dadosHoje[`${p}-C`] || 0);
-            const perc = Math.min(100, (valor / 1000) * 100);
-            const status = statusNivel(perc);
-            return (
-              <div key={p} className="mb-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-white font-medium">{p}</span>
-                  <span className="text-gray-400">{Math.round(perc)}% - {status}</span>
-                </div>
-                <div className="h-2 rounded bg-zinc-800">
-                  <div className="h-2 rounded" style={{ width: `${perc}%`, backgroundColor: STATUS_CORES[status] }} />
-                </div>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
-
-      <Card className="bg-zinc-900 mb-4">
-        <CardContent className="p-4">
-          <h2 className="text-white text-sm font-semibold mb-2">Premiações por Pasta</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <PieChart>
-              <Pie data={premiacoesConsulta} dataKey="tipo" nameKey="pasta" cx="50%" cy="50%" outerRadius={70} label>
-                {premiacoesConsulta.map((_, i) => (
-                  <Cell key={i} fill={CORES[i % CORES.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-4">
-            <Button onClick={() => setMostrarConsulta(!mostrarConsulta)} className="bg-white text-black px-4 py-1 text-sm">CONSULTAR</Button>
-            {mostrarConsulta && (
-              <div className="mt-2">
-                <Input type="date" value={dataConsulta} onChange={(e) => setDataConsulta(e.target.value)} className="bg-zinc-800 text-white text-sm" />
-                <ul className="text-sm text-white mt-2">
-                  {data[dataConsulta]?.premiacoes?.map((p, i) => (
-                    <li key={i}>{p.nome} - {p.pasta} - {p.tipo}</li>
-                  )) || <li>Nenhum registro.</li>}
-                </ul>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      <p className="text-center text-xs text-zinc-500 mt-6">Todos direitos reservados - BladeHT #S3LO - 2025</p>
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Hoje vai ser leve ou cheio de confusão? Bora descobrir na prática então?</textarea>
+      <button onclick="copyToClipboard('manha1')">Copiar</button>
     </div>
-  );
-}
+    <div class="mensagem">
+      <textarea readonly id="manha2">**# Bom dia, Maresia City! A cidade desperta com estilo.**
+
+> Novo dia, novas chances. Vai subir no palco ou vai ser tranquilo?
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Vai na paz ou causando impacto? O que vai ser teu ato?</textarea>
+      <button onclick="copyToClipboard('manha2')">Copiar</button>
+    </div>
+    <div class="mensagem">
+      <textarea readonly id="manha3">**# Bom dia, Maresia City! 📅 A segunda começou? A sexta chegou?**
+
+> No fim, tanto faz: a Maresia nunca parou!
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Vai no corre ou no lazer? O importante é comparecer!</textarea>
+      <button onclick="copyToClipboard('manha3')">Copiar</button>
+    </div>
+    <div class="mensagem">
+      <textarea readonly id="manha4">**# Bom dia, Maresia City! E a Maresia já amanheceu daquele jeitão!**
+
+> Solzão no asfalto e RP no coração!
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Vai de calmaria ou de explosão? Vem ver qual é a missão!</textarea>
+      <button onclick="copyToClipboard('manha4')">Copiar</button>
+    </div>
+  </div>
+
+  <div class="quadro" id="tarde">
+    <h2>🌆 VERSÕES DE TARDE</h2>
+    <div class="mensagem">
+      <textarea readonly id="tarde1">**# Boa tarde, Maresia City! Tardezinha batendo e a Maresia fervendo!**
+
+> Vai colar com estilo ou deixar pra depois?
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Vai de rolê ou ficar nesse clima ai chatão? Aqui é só decisão!</textarea>
+      <button onclick="copyToClipboard('tarde1')">Copiar</button>
+    </div>
+    <div class="mensagem">
+      <textarea readonly id="tarde2">**# Boa tarde, Maresia City! ✨ Meio da tarde, sol rachando e carro voando.**
+
+> Na Maresia é tudo ou nada. Vem pro corre?
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+A cena está montada, vai ser figurante ou protagonista na estrada?</textarea>
+      <button onclick="copyToClipboard('tarde2')">Copiar</button>
+    </div>
+    <div class="mensagem">
+      <textarea readonly id="tarde3">**# Boa tarde, Maresia City! 🥵 A Maresia segue quente!**
+
+> Cenário montado e nego na pista. E você, vai entrar em qual fita?
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+O volante tá na tua mão ou tu vai assistir do portão?</textarea>
+      <button onclick="copyToClipboard('tarde3')">Copiar</button>
+    </div>
+    <div class="mensagem">
+      <textarea readonly id="tarde4">**# 🌧️ E a tarde cai na city do caos!**
+
+> A Maresia não para. Cola com atitude!
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Tu vem na responsa ou vai fugir da responsa?</textarea>
+      <button onclick="copyToClipboard('tarde4')">Copiar</button>
+    </div>
+  </div>
+
+  <div class="quadro" id="noite">
+    <h2>🌙 VERSÕES DE NOITE</h2>
+    <div class="mensagem">
+      <textarea readonly id="noite1">**# Boa noite, Maresia City!🌙 A city tá na penumbra, mas a Maresia tá acesa!**
+
+> Hora de acender o roleplay. Cola com quem faz história.
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Vai ficar off ou vai colar e virar lenda?</textarea>
+      <button onclick="copyToClipboard('noite1')">Copiar</button>
+    </div>
+    <div class="mensagem">
+      <textarea readonly id="noite2">**# Boa noite, Maresia City! 🎭 As luzes da city brilham diferente à noite.**
+
+> Mistério, role e missão. Vai entrar na ação?
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Na noite da Maresia, quem dorme perde cena!</textarea>
+      <button onclick="copyToClipboard('noite2')">Copiar</button>
+    </div>
+    <div class="mensagem">
+      <textarea readonly id="noite3">**# Boa noite, Maresia City! 🕶️ O sol se foi, mas o corre não para!**
+
+> É agora que os verdadeiros se revelam.
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Quem manda na madrugada? Vem mostrar tua pegada!</textarea>
+      <button onclick="copyToClipboard('noite3')">Copiar</button>
+    </div>
+    <div class="mensagem">
+      <textarea readonly id="noite4">**# Boa noite, Maresia City! 🔦 As sombras da city escondem histórias.**
+
+> Tá pronto pra fazer a tua?
+
+cole isso no f8 que ja entra direto, ta ligado né
+```ansi
+connect maresia.santagroup.gg
+```
+||@everyone|| ||@┋ Sem WL || ||@┋ Cidadão||
+Noite adentro, quem entra deixa seu nome!</textarea>
+      <button onclick="copyToClipboard('noite4')">Copiar</button>
+    </div>
+  </div>
+
+  <script>
+    function copyToClipboard(id) {
+      const textArea = document.getElementById(id);
+      navigator.clipboard.writeText(textArea.value).then(() => {
+        alert('Copiado com sucesso!');
+      });
+    }
+  </script>
+</body>
+    </div>
+    <footer>
+        Todos direitos reservados Shemiah #S3LO - 2025
+    </footer>
+
+    <script>
+        function copyText() {
+            const pre = document.querySelector('pre');
+            const text = pre.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Texto copiado com sucesso!");
+            });
+        }
+    </script>
+</body>
+</html>
